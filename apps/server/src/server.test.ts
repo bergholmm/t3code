@@ -14,6 +14,7 @@ import {
   ThreadId,
   WS_METHODS,
   WsRpcGroup,
+  EditorId,
 } from "@t3tools/contracts";
 import { assert, it } from "@effect/vitest";
 import { assertFailure, assertInclude, assertTrue } from "@effect/vitest/utils";
@@ -679,10 +680,7 @@ it.layer(NodeServices.layer)("server router seam", (it) => {
 
   it.effect("routes websocket rpc shell.openInEditor", () =>
     Effect.gen(function* () {
-      let openedInput: {
-        cwd: string;
-        editor: "cursor" | "vscode" | "zed" | "file-manager";
-      } | null = null;
+      let openedInput: { cwd: string; editor: EditorId } | null = null;
       yield* buildAppUnderTest({
         layers: {
           open: {
