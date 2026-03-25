@@ -42,6 +42,33 @@ export function getDefaultEffort(caps: ModelCapabilities): string | null {
   return caps.reasoningEffortLevels.find((l) => l.isDefault)?.value ?? null;
 }
 
+// ── Context window helpers ───────────────────────────────────────────
+
+/** Check whether a capabilities object includes a given context window value. */
+export function hasContextWindowOption(caps: ModelCapabilities, value: string): boolean {
+  return caps.contextWindowOptions.some((o) => o.value === value);
+}
+
+/** Return the default context window value, or `""` if none is defined. */
+export function getDefaultContextWindow(caps: ModelCapabilities): string {
+  return caps.contextWindowOptions.find((o) => o.isDefault)?.value ?? "";
+}
+
+/**
+ * Resolve a raw `contextWindow` option against capabilities.
+ * Returns the validated non-default value, or `undefined` when it should be
+ * omitted (default or unsupported).
+ */
+function resolveContextWindow(
+  caps: ModelCapabilities,
+  raw: string | null | undefined,
+): string | undefined {
+  if (!raw) return undefined;
+  const defaultValue = getDefaultContextWindow(caps);
+  if (raw === defaultValue) return undefined;
+  return hasContextWindowOption(caps, raw) ? raw : undefined;
+}
+
 // ── Data-driven capability resolver ───────────────────────────────────
 
 export function getModelCapabilities(
@@ -56,6 +83,7 @@ export function getModelCapabilities(
     reasoningEffortLevels: [],
     supportsFastMode: false,
     supportsThinkingToggle: false,
+    contextWindowOptions: [],
     promptInjectedEffortLevels: [],
   };
 }
@@ -178,12 +206,31 @@ export function normalizeClaudeModelOptions(
   const thinking =
     caps.supportsThinkingToggle && modelOptions?.thinking === false ? false : undefined;
   const fastMode = caps.supportsFastMode && modelOptions?.fastMode === true ? true : undefined;
+  const contextWindow = resolveContextWindow(caps, modelOptions?.contextWindow);
   const nextOptions: ClaudeModelOptions = {
     ...(thinking === false ? { thinking: false } : {}),
     ...(effort ? { effort } : {}),
     ...(fastMode ? { fastMode: true } : {}),
+    ...(contextWindow ? { contextWindow } : {}),
   };
   return Object.keys(nextOptions).length > 0 ? nextOptions : undefined;
+}
+
+/**
+ * Resolve the actual API model identifier for a Claude model selection.
+ *
+ * The `contextWindow` option stores an API suffix (e.g. `"[1m]"`) that gets
+ * appended to the canonical model slug.  The slug itself stays unchanged in
+ * model selections so the capabilities system keeps working.
+ */
+export function resolveClaudeApiModelId(
+  model: string,
+  options: ClaudeModelOptions | null | undefined,
+): string {
+  const suffix = options?.contextWindow;
+  if (!suffix) return model;
+  const caps = getModelCapabilities("claudeAgent", model);
+  return hasContextWindowOption(caps, suffix) ? `${model}${suffix}` : model;
 }
 
 export function applyClaudePromptEffortPrefix(

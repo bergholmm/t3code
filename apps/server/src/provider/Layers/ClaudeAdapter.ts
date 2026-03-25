@@ -44,6 +44,7 @@ import {
   hasEffortLevel,
   applyClaudePromptEffortPrefix,
   getModelCapabilities,
+  resolveClaudeApiModelId,
   trimOrNull,
 } from "@t3tools/shared/model";
 import {
@@ -2730,6 +2731,9 @@ function makeClaudeAdapter(options?: ClaudeAdapterLiveOptions) {
         const providerOptions = input.providerOptions?.claudeAgent;
         const modelSelection =
           input.modelSelection?.provider === "claudeAgent" ? input.modelSelection : undefined;
+        const apiModelId = modelSelection?.model
+          ? resolveClaudeApiModelId(modelSelection.model, modelSelection.options)
+          : undefined;
         const requestedEffort = trimOrNull(modelSelection?.options?.effort ?? null);
         const caps = getModelCapabilities("claudeAgent", modelSelection?.model);
         const effort =
@@ -2750,7 +2754,7 @@ function makeClaudeAdapter(options?: ClaudeAdapterLiveOptions) {
 
         const queryOptions: ClaudeQueryOptions = {
           ...(input.cwd ? { cwd: input.cwd } : {}),
-          ...(modelSelection?.model ? { model: modelSelection.model } : {}),
+          ...(apiModelId ? { model: apiModelId } : {}),
           pathToClaudeCodeExecutable: providerOptions?.binaryPath ?? "claude",
           settingSources: [...CLAUDE_SETTING_SOURCES],
           ...(effectiveEffort ? { effort: effectiveEffort } : {}),
@@ -2847,7 +2851,7 @@ function makeClaudeAdapter(options?: ClaudeAdapterLiveOptions) {
           threadId,
           payload: {
             config: {
-              ...(modelSelection?.model ? { model: modelSelection.model } : {}),
+              ...(apiModelId ? { model: apiModelId } : {}),
               ...(input.cwd ? { cwd: input.cwd } : {}),
               ...(effectiveEffort ? { effort: effectiveEffort } : {}),
               ...(permissionMode ? { permissionMode } : {}),
@@ -2903,8 +2907,9 @@ function makeClaudeAdapter(options?: ClaudeAdapterLiveOptions) {
         }
 
         if (modelSelection?.model) {
+          const apiModelId = resolveClaudeApiModelId(modelSelection.model, modelSelection.options);
           yield* Effect.tryPromise({
-            try: () => context.query.setModel(modelSelection.model),
+            try: () => context.query.setModel(apiModelId),
             catch: (cause) => toRequestError(input.threadId, "turn/setModel", cause),
           });
         }

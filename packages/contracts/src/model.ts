@@ -17,6 +17,8 @@ export const ClaudeModelOptions = Schema.Struct({
   thinking: Schema.optional(Schema.Boolean),
   effort: Schema.optional(Schema.Literals(CLAUDE_CODE_EFFORT_OPTIONS)),
   fastMode: Schema.optional(Schema.Boolean),
+  /** API suffix for context window selection (e.g. `"[1m]"`). Omit for default. */
+  contextWindow: Schema.optional(Schema.String),
 });
 export type ClaudeModelOptions = typeof ClaudeModelOptions.Type;
 
@@ -32,10 +34,18 @@ export type EffortOption = {
   readonly isDefault?: true;
 };
 
+export type ContextWindowOption = {
+  /** API suffix appended to the model slug (e.g. `""` for default, `"[1m]"` for 1M). */
+  readonly value: string;
+  readonly label: string;
+  readonly isDefault?: true;
+};
+
 export type ModelCapabilities = {
   readonly reasoningEffortLevels: readonly EffortOption[];
   readonly supportsFastMode: boolean;
   readonly supportsThinkingToggle: boolean;
+  readonly contextWindowOptions: readonly ContextWindowOption[];
   readonly promptInjectedEffortLevels: readonly string[];
 };
 
@@ -63,6 +73,7 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         ],
         supportsFastMode: true,
         supportsThinkingToggle: false,
+        contextWindowOptions: [],
         promptInjectedEffortLevels: [],
       },
     },
@@ -78,6 +89,7 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         ],
         supportsFastMode: true,
         supportsThinkingToggle: false,
+        contextWindowOptions: [],
         promptInjectedEffortLevels: [],
       },
     },
@@ -93,6 +105,7 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         ],
         supportsFastMode: true,
         supportsThinkingToggle: false,
+        contextWindowOptions: [],
         promptInjectedEffortLevels: [],
       },
     },
@@ -108,6 +121,7 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         ],
         supportsFastMode: true,
         supportsThinkingToggle: false,
+        contextWindowOptions: [],
         promptInjectedEffortLevels: [],
       },
     },
@@ -123,6 +137,7 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         ],
         supportsFastMode: true,
         supportsThinkingToggle: false,
+        contextWindowOptions: [],
         promptInjectedEffortLevels: [],
       },
     },
@@ -138,6 +153,7 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         ],
         supportsFastMode: true,
         supportsThinkingToggle: false,
+        contextWindowOptions: [],
         promptInjectedEffortLevels: [],
       },
     },
@@ -156,6 +172,10 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         ],
         supportsFastMode: true,
         supportsThinkingToggle: false,
+        contextWindowOptions: [
+          { value: "", label: "200k", isDefault: true },
+          { value: "[1m]", label: "1M" },
+        ],
         promptInjectedEffortLevels: ["ultrathink"],
       },
     },
@@ -171,6 +191,10 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         ],
         supportsFastMode: false,
         supportsThinkingToggle: false,
+        contextWindowOptions: [
+          { value: "", label: "200k", isDefault: true },
+          { value: "[1m]", label: "1M" },
+        ],
         promptInjectedEffortLevels: ["ultrathink"],
       },
     },
@@ -181,6 +205,7 @@ export const MODEL_OPTIONS_BY_PROVIDER = {
         reasoningEffortLevels: [],
         supportsFastMode: false,
         supportsThinkingToggle: true,
+        contextWindowOptions: [],
         promptInjectedEffortLevels: [],
       },
     },
