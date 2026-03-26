@@ -23,6 +23,14 @@ import { deepMerge } from "@t3tools/shared/Struct";
 import { applySettingsUpdated, getServerConfig, useServerSettings } from "~/rpc/serverState";
 
 const CLIENT_SETTINGS_PERSISTENCE_ERROR_SCOPE = "[CLIENT_SETTINGS]";
+const HIGH_CONTRAST_CLASS_NAME = "high-contrast";
+
+// ── High-contrast mode ──────────────────────────────────────────────
+
+export function applyHighContrastMode(enabled: boolean): void {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle(HIGH_CONTRAST_CLASS_NAME, enabled);
+}
 
 const clientSettingsListeners = new Set<() => void>();
 let clientSettingsSnapshot = DEFAULT_CLIENT_SETTINGS;

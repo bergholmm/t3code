@@ -7,6 +7,7 @@ import "@xterm/xterm/css/xterm.css";
 import "./index.css";
 
 import { isElectron } from "./env";
+import { applyHighContrastMode, getStoredHighContrastMode } from "./hooks/useSettings";
 import { getRouter } from "./router";
 import { APP_DISPLAY_NAME } from "./branding";
 import { syncDocumentWindowControlsOverlayClass } from "./lib/windowControlsOverlay";
@@ -21,6 +22,7 @@ if (isElectron) {
 }
 
 document.title = APP_DISPLAY_NAME;
+applyHighContrastMode(getStoredHighContrastMode());
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

@@ -18,6 +18,7 @@ import {
   WebSocketConnectionCoordinator,
   WebSocketConnectionSurface,
 } from "../components/WebSocketConnectionSurface";
+import { applyHighContrastMode, useSettings } from "../hooks/useSettings";
 import { Button } from "../components/ui/button";
 import { AnchoredToastProvider, ToastProvider, toastManager } from "../components/ui/toast";
 import { resolveAndPersistPreferredEditor } from "../editorPreferences";
@@ -64,6 +65,14 @@ export const Route = createRootRouteWithContext<{
   }),
 });
 
+function HighContrastSync() {
+  const settings = useSettings();
+  useEffect(() => {
+    applyHighContrastMode(settings.highContrastMode);
+  }, [settings.highContrastMode]);
+  return null;
+}
+
 function RootRouteView() {
   const pathname = useLocation({ select: (location) => location.pathname });
   const { authGateState } = Route.useRouteContext();
@@ -91,6 +100,7 @@ function RootRouteView() {
         <ServerStateBootstrap />
         <EnvironmentConnectionManagerBootstrap />
         <EventRouter />
+        <HighContrastSync />
         <WebSocketConnectionCoordinator />
         <SlowRpcAckToastCoordinator />
         <WebSocketConnectionSurface>
