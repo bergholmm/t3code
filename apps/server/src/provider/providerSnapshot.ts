@@ -100,11 +100,30 @@ export function parseGenericCliVersion(output: string): string | null {
   return match?.[1] ?? null;
 }
 
+/**
+ * Find the best capability match for a custom model by checking if any
+ * built-in model slug is a prefix of the custom slug. For example,
+ * "claude-opus-4-6[1m]" matches "claude-opus-4-6" and inherits its
+ * capabilities (effort levels, fast mode, thinking toggle).
+ */
+function inferCapabilities(
+  slug: string,
+  builtInModels: ReadonlyArray<ServerProviderModel>,
+): ServerProviderModel["capabilities"] {
+  let bestMatch: ServerProviderModel | null = null;
+  for (const model of builtInModels) {
+    if (slug.startsWith(model.slug) && (!bestMatch || model.slug.length > bestMatch.slug.length)) {
+      bestMatch = model;
+    }
+  }
+  return bestMatch?.capabilities ?? null;
+}
+
 export function providerModelsFromSettings(
   builtInModels: ReadonlyArray<ServerProviderModel>,
   provider: ServerProvider["provider"],
   customModels: ReadonlyArray<string>,
-  customModelCapabilities: ModelCapabilities,
+  _customModelCapabilities: ModelCapabilities,
 ): ReadonlyArray<ServerProviderModel> {
   const resolvedBuiltInModels = [...builtInModels];
   const seen = new Set(resolvedBuiltInModels.map((model) => model.slug));
@@ -120,7 +139,7 @@ export function providerModelsFromSettings(
       slug: normalized,
       name: normalized,
       isCustom: true,
-      capabilities: customModelCapabilities,
+      capabilities: inferCapabilities(normalized, builtInModels),
     });
   }
 
