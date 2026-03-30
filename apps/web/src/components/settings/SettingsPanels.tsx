@@ -35,7 +35,7 @@ import { TraitsPicker } from "../chat/TraitsPicker";
 import { resolveAndPersistPreferredEditor } from "../../editorPreferences";
 import { isElectron } from "../../env";
 import { useTheme } from "../../hooks/useTheme";
-import { useSettings, useUpdateSettings } from "../../hooks/useSettings";
+import { applyHighContrastMode, useSettings, useUpdateSettings } from "../../hooks/useSettings";
 import { useThreadActions } from "../../hooks/useThreadActions";
 import {
   setDesktopUpdateStateQueryData,
@@ -432,6 +432,12 @@ export function useSettingsRestore(onRestored?: () => void) {
   const changedSettingLabels = useMemo(
     () => [
       ...(theme !== "system" ? ["Theme"] : []),
+      ...(settings.highContrastMode !== DEFAULT_UNIFIED_SETTINGS.highContrastMode
+        ? ["High contrast"]
+        : []),
+      ...(settings.notificationsEnabled !== DEFAULT_UNIFIED_SETTINGS.notificationsEnabled
+        ? ["Push notifications"]
+        : []),
       ...(settings.timestampFormat !== DEFAULT_UNIFIED_SETTINGS.timestampFormat
         ? ["Time format"]
         : []),
@@ -465,6 +471,8 @@ export function useSettingsRestore(onRestored?: () => void) {
       settings.defaultThreadEnvMode,
       settings.diffWordWrap,
       settings.enableAssistantStreaming,
+      settings.highContrastMode,
+      settings.notificationsEnabled,
       settings.timestampFormat,
       theme,
     ],
@@ -786,6 +794,60 @@ export function GeneralSettingsPanel() {
                 ))}
               </SelectPopup>
             </Select>
+          }
+        />
+
+        <SettingsRow
+          title="High contrast"
+          description="Use pure black and white backgrounds for improved readability."
+          resetAction={
+            settings.highContrastMode !== DEFAULT_UNIFIED_SETTINGS.highContrastMode ? (
+              <SettingResetButton
+                label="high contrast"
+                onClick={() => {
+                  updateSettings({
+                    highContrastMode: DEFAULT_UNIFIED_SETTINGS.highContrastMode,
+                  });
+                  applyHighContrastMode(DEFAULT_UNIFIED_SETTINGS.highContrastMode);
+                }}
+              />
+            ) : null
+          }
+          control={
+            <Switch
+              checked={settings.highContrastMode}
+              onCheckedChange={(checked) => {
+                updateSettings({ highContrastMode: Boolean(checked) });
+                applyHighContrastMode(Boolean(checked));
+              }}
+              aria-label="Enable high contrast mode"
+            />
+          }
+        />
+
+        <SettingsRow
+          title="Push notifications"
+          description="Receive browser notifications when a thread needs attention."
+          resetAction={
+            settings.notificationsEnabled !== DEFAULT_UNIFIED_SETTINGS.notificationsEnabled ? (
+              <SettingResetButton
+                label="push notifications"
+                onClick={() =>
+                  updateSettings({
+                    notificationsEnabled: DEFAULT_UNIFIED_SETTINGS.notificationsEnabled,
+                  })
+                }
+              />
+            ) : null
+          }
+          control={
+            <Switch
+              checked={settings.notificationsEnabled}
+              onCheckedChange={(checked) =>
+                updateSettings({ notificationsEnabled: Boolean(checked) })
+              }
+              aria-label="Enable push notifications"
+            />
           }
         />
 
