@@ -435,9 +435,6 @@ export function useSettingsRestore(onRestored?: () => void) {
       ...(settings.highContrastMode !== DEFAULT_UNIFIED_SETTINGS.highContrastMode
         ? ["High contrast"]
         : []),
-      ...(settings.notificationsEnabled !== DEFAULT_UNIFIED_SETTINGS.notificationsEnabled
-        ? ["Push notifications"]
-        : []),
       ...(settings.timestampFormat !== DEFAULT_UNIFIED_SETTINGS.timestampFormat
         ? ["Time format"]
         : []),
@@ -472,7 +469,6 @@ export function useSettingsRestore(onRestored?: () => void) {
       settings.diffWordWrap,
       settings.enableAssistantStreaming,
       settings.highContrastMode,
-      settings.notificationsEnabled,
       settings.timestampFormat,
       theme,
     ],
@@ -821,32 +817,6 @@ export function GeneralSettingsPanel() {
                 applyHighContrastMode(Boolean(checked));
               }}
               aria-label="Enable high contrast mode"
-            />
-          }
-        />
-
-        <SettingsRow
-          title="Push notifications"
-          description="Receive browser notifications when a thread needs attention."
-          resetAction={
-            settings.notificationsEnabled !== DEFAULT_UNIFIED_SETTINGS.notificationsEnabled ? (
-              <SettingResetButton
-                label="push notifications"
-                onClick={() =>
-                  updateSettings({
-                    notificationsEnabled: DEFAULT_UNIFIED_SETTINGS.notificationsEnabled,
-                  })
-                }
-              />
-            ) : null
-          }
-          control={
-            <Switch
-              checked={settings.notificationsEnabled}
-              onCheckedChange={(checked) =>
-                updateSettings({ notificationsEnabled: Boolean(checked) })
-              }
-              aria-label="Enable push notifications"
             />
           }
         />
