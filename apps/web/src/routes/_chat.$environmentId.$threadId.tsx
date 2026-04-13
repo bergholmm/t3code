@@ -21,7 +21,6 @@ import { selectEnvironmentState, selectThreadExistsByRef, useStore } from "../st
 import { createThreadSelectorByRef } from "../storeSelectors";
 import { resolveThreadRouteRef, buildThreadRouteParams } from "../threadRoutes";
 import { Sheet, SheetPopup } from "../components/ui/sheet";
-import { Spinner } from "../components/ui/spinner";
 import { Sidebar, SidebarInset, SidebarProvider, SidebarRail } from "~/components/ui/sidebar";
 
 const DiffPanel = lazy(() => import("../components/DiffPanel"));
